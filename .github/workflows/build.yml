@@ -1,0 +1,45 @@
+name: Build Muse for Pelican
+on:
+  workflow_dispatch:
+    inputs:
+      upstream_tag:
+        description: Official Muse image tag (for example 2.11.8 or yt-dlp-latest)
+        required: true
+        default: '2.11.8'
+permissions:
+  contents: read
+  packages: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and check
+        env:
+          UPSTREAM_TAG: ${{ inputs.upstream_tag }}
+        run: |
+          [[ "$UPSTREAM_TAG" =~ ^[a-zA-Z0-9_][a-zA-Z0-9_.-]{0,127}$ ]] || exit 1
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}:${UPSTREAM_TAG}-pelican-${GITHUB_RUN_NUMBER}"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+          bash scripts/update.sh "ghcr.io/museofficial/muse:$UPSTREAM_TAG" "$IMAGE"
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish checked image
+        run: docker push "$IMAGE"
+      - name: Create importable egg
+        run: |
+          python3 - <<'PY'
+          import json, os
+          with open("egg-muse.json") as f:
+              egg = json.load(f)
+          egg["docker_images"] = {"Muse Pelican": os.environ["IMAGE"]}
+          with open("egg-muse-built.json", "w") as f:
+              json.dump(egg, f, indent=4)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: muse-pelican-egg
+          path: egg-muse-built.json

@@ -1,0 +1,193 @@
+{
+    "_comment": "Adapted from the MIT-licensed Pelican Muse egg by David Wolfe (Red-Thirten), TubaApollo and parkervcp.",
+    "meta": {
+        "version": "PLCN_v1",
+        "update_url": null
+    },
+    "exported_at": "2026-09-26T00:00:00+00:00",
+    "name": "Muse (official image, Pelican)",
+    "author": "red_thirten@yahoo.com",
+    "uuid": "955b66c9-326f-407a-87d6-789765737e17",
+    "description": "Muse with a Pelican-compatible image, persistent data, optional Spotify and upstream image updates. Build the included Dockerfile first; muse-pelican:local is a local image name, not a published registry image.",
+    "features": null,
+    "docker_images": {
+        "Muse Pelican (build first)": "muse-pelican:local"
+    },
+    "file_denylist": [],
+    "startup": "/entrypoint.sh",
+    "config": {
+        "files": "{}",
+        "startup": "{\"done\":\"Ready! Invite the bot with\"}",
+        "logs": "{}",
+        "stop": "^C"
+    },
+    "scripts": {
+        "installation": {
+            "script": "#!/bin/sh\nset -eu\n# Application code and dependencies live in the image, outside the server mount.\n# Wings handles volume ownership. Preserve existing data, cookies and other files.\nmkdir -p /mnt/server/data\nprintf '%s\\n' 'Muse data directory is ready. Select the matching Muse Pelican image.'\n",
+            "container": "ghcr.io/museofficial/muse:2.11.8",
+            "entrypoint": "/bin/sh"
+        }
+    },
+    "variables": [
+        {
+            "name": "Discord Bot Token",
+            "description": "Discord application bot token. Set this in Pelican; never bake it into the image.",
+            "env_variable": "DISCORD_TOKEN",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 1
+        },
+        {
+            "name": "YouTube API Key",
+            "description": "Google API key with YouTube Data API v3 enabled.",
+            "env_variable": "YOUTUBE_API_KEY",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 2
+        },
+        {
+            "name": "Spotify Client ID",
+            "description": "Optional. Provide both Spotify credentials to enable Spotify URL conversion.",
+            "env_variable": "SPOTIFY_CLIENT_ID",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "nullable",
+                "string"
+            ],
+            "sort": 3
+        },
+        {
+            "name": "Spotify Client Secret",
+            "description": "Optional. Leave both Spotify fields empty to disable Spotify URL conversion.",
+            "env_variable": "SPOTIFY_CLIENT_SECRET",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "nullable",
+                "string"
+            ],
+            "sort": 4
+        },
+        {
+            "name": "Cache Limit",
+            "description": "Maximum Muse audio cache size. Allow additional disk space for the database.",
+            "env_variable": "CACHE_LIMIT",
+            "default_value": "2GB",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 5
+        },
+        {
+            "name": "SponsorBlock",
+            "description": "Skip supported non-music sections.",
+            "env_variable": "ENABLE_SPONSORBLOCK",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string",
+                "in:true,false"
+            ],
+            "sort": 6
+        },
+        {
+            "name": "Bot Status",
+            "description": "Discord presence status.",
+            "env_variable": "BOT_STATUS",
+            "default_value": "online",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string",
+                "in:online,idle,dnd"
+            ],
+            "sort": 7
+        },
+        {
+            "name": "Bot Activity Type",
+            "description": "Discord activity type.",
+            "env_variable": "BOT_ACTIVITY_TYPE",
+            "default_value": "LISTENING",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string",
+                "in:PLAYING,LISTENING,WATCHING,STREAMING"
+            ],
+            "sort": 8
+        },
+        {
+            "name": "Bot Activity",
+            "description": "Text shown in the Discord presence.",
+            "env_variable": "BOT_ACTIVITY",
+            "default_value": "music",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string"
+            ],
+            "sort": 9
+        },
+        {
+            "name": "Streaming URL",
+            "description": "Required when activity type is STREAMING; use a Twitch or YouTube URL.",
+            "env_variable": "BOT_ACTIVITY_URL",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "nullable",
+                "string"
+            ],
+            "sort": 10
+        },
+        {
+            "name": "Register Commands Globally",
+            "description": "Register bot-wide commands rather than per-guild commands.",
+            "env_variable": "REGISTER_COMMANDS_ON_BOT",
+            "default_value": "false",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "required",
+                "string",
+                "in:true,false"
+            ],
+            "sort": 11
+        },
+        {
+            "name": "YouTube Cookie File",
+            "description": "Optional absolute container path, for example /home/container/secrets/youtube-cookies.txt. Treat the file as a password.",
+            "env_variable": "YT_DLP_COOKIES_PATH",
+            "default_value": "",
+            "user_viewable": true,
+            "user_editable": true,
+            "rules": [
+                "nullable",
+                "string"
+            ],
+            "sort": 12
+        }
+    ]
+}
